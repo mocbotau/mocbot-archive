@@ -1,0 +1,53 @@
+services:
+  archive-api:
+    build: .
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./.env.local:/app/.env
+      - .local-secrets:/secrets:ro
+    environment:
+      - GIN_MODE=debug
+    networks:
+      - archive-api
+      - db
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9000/api/v1/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: "mysql"
+    restart: unless-stopped
+    env_file:
+      - ./.env.local
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - .local-secrets:/secrets:ro
+    networks:
+      - db
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 8
+      start_period: 0s
+
+volumes:
+  mysql_data:
+networks:
+  archive-api:
+  db:

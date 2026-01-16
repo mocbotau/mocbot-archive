@@ -1,0 +1,15 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: mocbotau/infra-workflows/.github/workflows/generic-deploy.yaml@v0.4.0
+    with:
+      event-name: ${{ github.event_name }}
+      environment: "prod"
+      repo-name: "mocbot-archive"
+    secrets: inherit

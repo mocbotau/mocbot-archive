@@ -1,0 +1,34 @@
+environments:
+  staging:
+    values:
+      - environment: staging
+        volumeSize: 500Mi
+  prod:
+    values:
+      - environment: prod
+        volumeSize: 1500Mi
+
+---
+repositories:
+  - name: chartmuseum
+    url: https://chartmuseum.masterofcubesau.com
+    username: {{ requiredEnv "CHARTMUSEUM_USER" }}
+    password: {{ requiredEnv "CHARTMUSEUM_PASS" }}
+
+helmDefaults:
+  atomic: true
+  cleanupOnFail: true
+  createNamespace: true
+  suppressOutputLineRegex:
+    - "version"
+  timeout: 60
+  wait: true
+  waitForJobs: true
+
+releases:
+  - name: mocbot-archive-api
+    chart: chartmuseum/generic-app
+    version: 0.4.0
+    namespace: mocbot-archive-api-{{ .Environment.Values.environment }}
+    values:
+      - infra/values.yaml.gotmpl

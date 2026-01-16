@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../infra-helm-charts/charts/generic-app/values.schema.json
+
+environment: {{ .Environment.Values.environment | quote }}
+version: {{ requiredEnv "COMMIT_SHA" | quote }}
+
+deployments:
+  - name: "mocbot-archive"
+    image: "mocbotau/cloud:mocbot-archive-{{ .Environment.Values.environment }}"
+    service:
+      port: 9000
+      targetPort: 9000
+    environment:
+      API_KEY_FILE: "/secrets/api-key"
+      MYSQL_DATABASE: "mocbot-archive"
+      MYSQL_USER: "mocbot"
+      MYSQL_PASSWORD_FILE: "/secrets/db-password"
+      MYSQL_ROOT_PASSWORD_FILE: "/secrets/db-root-password"
+      MYSQL_HOST: "service-mocbot-archive-db"
+    ingress:
+      subdomain: "archive-api"
+      domain: "masterofcubesau.com"
+    readinessProbe:
+      httpGet:
+        path: "/api/v1/health"
+        port: 9000
+    secretProviderClass:
+      projectId: "5a0082ef-5a52-4867-8574-493361b74356"
+      secrets:
+        - secretKey: "API_KEY"
+        - secretKey: "DB_PASSWORD"
+
+statefulSets:
+  - name: "mocbot-archive-db"
+    image: "mysql"
+    service:
+      port: 3306
+      targetPort: 3306
+    updateStrategy: "OnDelete"
+    environment:
+      MYSQL_DATABASE: "mocbot-archive"
+      MYSQL_USER: "mocbot"
+      MYSQL_PASSWORD_FILE: "/secrets/db-password"
+      MYSQL_ROOT_PASSWORD_FILE: "/secrets/db-root-password"
+    secretProviderClass:
+      projectId: "5a0082ef-5a52-4867-8574-493361b74356"
+      secrets:
+        - secretKey: "DB_PASSWORD"
+        - secretKey: "DB_ROOT_PASSWORD"
+    readinessProbe:
+      tcpSocket:
+        port: 3306
+    volumes:
+      - name: "archive-api-data-longhorn"
+        storageClass: "longhorn"
+        mountPath: "/var/lib/mysql"
+        size: {{ .Values.volumeSize | quote}}

@@ -1,0 +1,20 @@
+{
+  "name": "mocbot-join-sound-api",
+  "engineVersion": "v0.19.9",
+  "sdk": {
+    "source": "go"
+  },
+  "dependencies": [
+    {
+      "name": "docker",
+      "source": "https://github.com/mocbotau/infra-dagger-modules/modules/docker@v0.2.1",
+      "pin": "d3b5d9928ca1aa7ab0199362d2d0f0e7cd6e792a"
+    },
+    {
+      "name": "golang-ci",
+      "source": "https://github.com/mocbotau/infra-dagger-modules/modules/golang-ci@v0.2.1",
+      "pin": "d3b5d9928ca1aa7ab0199362d2d0f0e7cd6e792a"
+    }
+  ],
+  "source": ".dagger"
+}

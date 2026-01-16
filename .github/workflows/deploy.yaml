@@ -1,15 +1,25 @@
 name: Deploy
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        default: "staging"
+        description: "Environment to deploy to"
+        required: true
+        options:
+          - staging
+          - prod
 
 jobs:
   deploy:
     uses: mocbotau/infra-workflows/.github/workflows/generic-deploy.yaml@v0.4.0
     with:
       event-name: ${{ github.event_name }}
-      environment: "prod"
+      environment: ${{ github.event.inputs.env }}
       repo-name: "mocbot-archive"
     secrets: inherit

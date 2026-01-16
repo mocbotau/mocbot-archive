@@ -11,13 +11,14 @@ deployments:
       targetPort: 9000
     environment:
       API_KEY_FILE: "/secrets/api-key"
+      GIN_MODE: "release"
       MYSQL_DATABASE: "mocbot-archive"
       MYSQL_USER: "mocbot"
       MYSQL_PASSWORD_FILE: "/secrets/db-password"
       MYSQL_ROOT_PASSWORD_FILE: "/secrets/db-root-password"
       MYSQL_HOST: "service-mocbot-archive-db"
     ingress:
-      subdomain: "archive-api"
+      subdomain: "{{ .Environment.Values.stagingPrefix }}archive-api"
       domain: "masterofcubesau.com"
     readinessProbe:
       httpGet:

@@ -2,10 +2,12 @@ environments:
   staging:
     values:
       - environment: staging
+        stagingPrefix: "staging-"
         volumeSize: 500Mi
   prod:
     values:
       - environment: prod
+        stagingPrefix: ""
         volumeSize: 1500Mi
 
 ---
@@ -21,7 +23,7 @@ helmDefaults:
   createNamespace: true
   suppressOutputLineRegex:
     - "version"
-  timeout: 60
+  timeout: 90
   wait: true
   waitForJobs: true
 

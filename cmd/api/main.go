@@ -48,15 +48,25 @@ func main() {
 		log.Fatalf("Failed to get underlying sql.DB: %v", err)
 	}
 
+	handler := handlers.NewHandler(db)
+
+	r := gin.Default()
+
+	err = r.SetTrustedProxies([]string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+	})
+	if err != nil {
+		secretManager.Stop()
+		log.Fatalf("Failed to set trusted proxies: %v", err)
+	}
+
 	defer func() {
 		secretManager.Stop()
 
 		_ = sqlDB.Close()
 	}()
-
-	handler := handlers.NewHandler(db)
-
-	r := gin.Default()
 
 	r.Use(func(c *gin.Context) {
 		origin := c.GetHeader("Origin")

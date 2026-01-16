@@ -195,16 +195,6 @@ func (h *Handler) GetRecentTracksByUser(c *gin.Context) {
 	})
 }
 
-// GetRecommendedTracksByUser retrieves recommended track plays for a user.
-func (h *Handler) GetRecommendedTracksByUser(c *gin.Context) {
-
-}
-
-// GetRecommendedTracksByGuild retrieves recommended track plays for a user.
-func (h *Handler) GetRecommendedTracksByGuild(c *gin.Context) {
-	
-}
-
 // GetTrackListeners retrieves all listeners for a specific track play.
 func (h *Handler) GetTrackListeners(c *gin.Context) {
 	trackPlayID := c.Param("trackPlayId")

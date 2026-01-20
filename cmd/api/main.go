@@ -122,12 +122,14 @@ func setupRoutes(r *gin.Engine, handler *handlers.Handler, secretManager *utils.
 
 		guilds := api.Group("/guilds")
 		{
-			guilds.GET("/:guildId/tracks/recent", handler.GetRecentTracksByGuild) // GET /api/v1/guilds/{guildId}/tracks/recent?limit=50
+			guilds.GET("/:guildId/tracks/recent", handler.GetRecentTracksByGuild)             // GET /api/v1/guilds/{guildId}/tracks/recent?limit=50
+			guilds.GET("/:guildId/artists/recommended", handler.GetRecommendedArtistsByGuild) // GET /api/v1/guilds/{guildId}/artists/recommended?seedCount=500
 		}
 
 		users := api.Group("/users")
 		{
-			users.GET("/:userId/tracks/recent", handler.GetRecentTracksByUser) // GET /api/v1/users/{userId}/tracks/recent?limit=50
+			users.GET("/:userId/tracks/recent", handler.GetRecentTracksByUser)             // GET /api/v1/users/{userId}/tracks/recent?limit=50
+			users.GET("/:userId/artists/recommended", handler.GetRecommendedArtistsByUser) // GET /api/v1/users/{userId}/artists/recommended?seedCount=500
 		}
 	}
 }

@@ -28,7 +28,6 @@ func (db *DB) CreateTrackPlay(sessionID string, req *models.CreateTrackPlayReque
 		StartedAt:    time.Now(),
 		DurationMs:   req.DurationMs,
 		QueuedByUser: req.QueuedByUser,
-		CreatedAt:    time.Now(),
 	}
 
 	if err := db.Create(trackPlay).Error; err != nil {
@@ -60,6 +59,18 @@ func (db *DB) UpdateTrackPlay(id string, req *models.UpdateTrackPlayRequest) (*m
 	return trackPlay, nil
 }
 
+// DeleteTrackPlay deletes a track play by ID.
+func (db *DB) DeleteTrackPlay(id string) error {
+	err := db.
+		Where("id = ?", id).
+		Delete(&models.TrackPlay{}).Error
+	if err != nil {
+		return fmt.Errorf("failed to delete track play: %w", err)
+	}
+
+	return nil
+}
+
 // GetTrackPlay retrieves a track play by ID.
 func (db *DB) GetTrackPlay(id string) (*models.TrackPlay, error) {
 	trackPlay := &models.TrackPlay{}
@@ -85,45 +96,6 @@ func (db *DB) GetTrackPlaysBySession(sessionID string) ([]models.TrackPlay, erro
 		Find(&trackPlays).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get track plays for session: %w", err)
-	}
-
-	return trackPlays, nil
-}
-
-// GetRecentTrackPlaysByGuild retrieves recent track plays in a guild with limit.
-func (db *DB) GetRecentTrackPlaysByGuild(guildID string, limit int) ([]models.TrackPlay, error) {
-	var trackPlays []models.TrackPlay
-
-	query := db.
-		Where("guild_id = ?", guildID).
-		Order("started_at DESC")
-
-	if limit > 0 {
-		query = query.Limit(limit)
-	}
-
-	if err := query.Find(&trackPlays).Error; err != nil {
-		return nil, fmt.Errorf("failed to get recent track plays: %w", err)
-	}
-
-	return trackPlays, nil
-}
-
-// GetRecentTrackPlaysByUser retrieves recent track plays that a user listened to with limit.
-func (db *DB) GetRecentTrackPlaysByUser(userID string, limit int) ([]models.TrackPlay, error) {
-	var trackPlays []models.TrackPlay
-
-	query := db.
-		Joins("JOIN track_play_listeners ON track_play_listeners.track_play_id = track_plays.id").
-		Where("track_play_listeners.user_id = ?", userID).
-		Order("track_plays.started_at DESC")
-
-	if limit > 0 {
-		query = query.Limit(limit)
-	}
-
-	if err := query.Find(&trackPlays).Error; err != nil {
-		return nil, fmt.Errorf("failed to get user's track plays: %w", err)
 	}
 
 	return trackPlays, nil

@@ -66,6 +66,18 @@ func (db *DB) UpdateSession(sessionID string, endedAt *time.Time) (*models.Liste
 	return session, nil
 }
 
+// DeleteSession deletes a listening session by session ID.
+func (db *DB) DeleteSession(sessionID string) error {
+	err := db.
+		Where("id = ?", sessionID).
+		Delete(&models.ListeningSession{}).Error
+	if err != nil {
+		return fmt.Errorf("failed to delete listening session: %w", err)
+	}
+
+	return nil
+}
+
 // GetSessionsByGuildIDs retrieves listening sessions by guild IDs with limit.
 func (db *DB) GetSessionsByGuildIDs(guildIDs []string, limit int) ([]models.ListeningSession, error) {
 	var sessions []models.ListeningSession

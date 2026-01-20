@@ -96,6 +96,25 @@ func (h *Handler) EndSession(c *gin.Context) {
 		return
 	}
 
+	tracks, err := h.db.GetTrackPlaysBySession(sessionID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve tracks for session"})
+		return
+	}
+
+	if len(tracks) == 0 {
+		err := h.db.DeleteSession(sessionID)
+		if err != nil {
+			// An error like foreign key constraints should not occur here since we checked there are no tracks.
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete session"})
+			return
+		}
+
+		c.JSON(http.StatusNoContent, nil)
+
+		return
+	}
+
 	endedAt := req.EndedAt
 	if endedAt == nil {
 		now := time.Now()

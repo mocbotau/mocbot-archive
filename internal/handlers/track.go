@@ -81,6 +81,37 @@ func (h *Handler) EndTrack(c *gin.Context) {
 		req.EndedAt = &now
 	}
 
+	if req.PlayedDurationMs == nil {
+		c.JSON(http.StatusNoContent, nil)
+		return
+	}
+
+	track, err := h.db.GetTrackPlay(trackPlayID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Track play not found"})
+		return
+	}
+
+	if track.EndedAt != nil {
+		c.JSON(http.StatusOK, track) // Idempotent response if already ended
+		return
+	}
+
+	percentPlayed := float64(*req.PlayedDurationMs) / float64(track.DurationMs)
+	reached := *req.PlayedDurationMs >= utils.MinTrackDurationMs || percentPlayed >= utils.MinTrackPercentagePlayed
+
+	if !reached {
+		// If the played duration is too short, delete the track play to avoid noise.
+		if err := h.db.DeleteTrackPlay(trackPlayID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete track play"})
+			return
+		}
+
+		c.JSON(http.StatusNoContent, nil)
+
+		return
+	}
+
 	trackPlay, err := h.db.UpdateTrackPlay(trackPlayID, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update track play"})

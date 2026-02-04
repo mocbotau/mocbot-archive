@@ -52,6 +52,10 @@ func (db *DB) UpdateTrackPlay(id string, req *models.UpdateTrackPlayRequest) (*m
 		trackPlay.EndedAt = req.EndedAt
 	}
 
+	if req.PlayedDurationMs != nil {
+		trackPlay.PlayedDurationMs = *req.PlayedDurationMs
+	}
+
 	if err := db.Save(trackPlay).Error; err != nil {
 		return nil, fmt.Errorf("failed to update track play: %w", err)
 	}

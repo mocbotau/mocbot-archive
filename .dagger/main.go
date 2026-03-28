@@ -8,7 +8,7 @@ import (
 	"dagger/mocbot-archive/internal/dagger"
 )
 
-type MocbotJoinSoundApi struct {
+type MocbotArchive struct {
 	// Source code directory
 	// +private
 	Source *dagger.Directory
@@ -22,15 +22,15 @@ func New(
 	source *dagger.Directory,
 	// Infisical client secret
 	infisicalClientSecret *dagger.Secret,
-) *MocbotJoinSoundApi {
-	return &MocbotJoinSoundApi{
+) *MocbotArchive {
+	return &MocbotArchive{
 		Source:                source,
 		InfisicalClientSecret: infisicalClientSecret,
 	}
 }
 
 // CI runs the complete CI pipeline
-func (m *MocbotJoinSoundApi) CI(ctx context.Context) error {
+func (m *MocbotArchive) CI(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
@@ -50,7 +50,7 @@ func (m *MocbotJoinSoundApi) CI(ctx context.Context) error {
 }
 
 // BuildAndPush builds and pushes the Docker image to the container registry
-func (m *MocbotJoinSoundApi) BuildAndPush(
+func (m *MocbotArchive) BuildAndPush(
 	ctx context.Context,
 	// +default="prod"
 	env string,
